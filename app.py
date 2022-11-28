@@ -21,7 +21,7 @@ def predict(image_path):
     batch_t = torch.unsqueeze(transform(img), 0)
 
     model.eval()
-    out = model(batch_t.cuda())
+    out = model(batch_t)
     prob = torch.nn.functional.softmax(out, dim=1)[0] * 100
     _, indices = torch.sort(out, descending=True)
 
