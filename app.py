@@ -6,7 +6,7 @@ import pandas
 
 
 def predict(image_path):
-    model = torch.load('birdmodel')
+    model = torch.load('birdmodel', map_location=torch.device('cpu'))
 
     # https://pytorch.org/docs/stable/torchvision/models.html
     transform = transforms.Compose([
