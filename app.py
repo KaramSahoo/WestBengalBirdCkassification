@@ -38,29 +38,39 @@ st.set_option('deprecation.showfileUploaderEncoding', False)
 
 selected = option_menu(
     menu_title=None,
-    options=["Home", "Project", "Contact"],
+    options=["Home", "Project"],
     orientation="horizontal",
     default_index=0,
-    menu_icon="cast"
+    menu_icon="cast",
+    icons=['house-fill', 'gear-fill'],
+    styles={
+        "nav-link-selected": {"background-color": "#1c0d3e"},
+    }
 )
 
 if selected == "Project":
     # st.title("Karam and Ishan's Simple Image Classification App")
     st.write("")
 
-    file_up = st.file_uploader("Upload an image", type="jpg")
+    file_up = st.file_uploader("Upload an image", type=['jpg', 'png', 'jpeg'])
 
     if file_up is not None:
         image = Image.open(file_up)
-        st.image(image, caption='Uploaded Image.', use_column_width=True)
-        st.write("")
-        st.write("Your results are served here...")
-        labels = predict(file_up)
-        # st.write(labels)
-        # print out the top 5 prediction labels with scores
-        for i in labels:
-            st.write("Prediction (name)", i[0].split(
-                '.')[0], ",   Score: ", i[1])
+
+        col1, col2 = st.columns([0.5, 0.5])
+        with col1:
+            st.image(image, caption='Uploaded Image.', use_column_width=True)
+            st.write("")
+
+        with col2:
+            st.write("Your results are served here...")
+            labels = predict(file_up)
+            # st.write(labels)
+            # print out the top 5 prediction labels with scores
+            for i in labels:
+                st.write("Prediction (name): ", i[0].split(
+                    '.')[0], ",   \nScore: ", i[1])
+
 
 elif selected == "Home":
     st.title("West bengal bird species classification project")
