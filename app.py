@@ -3,11 +3,16 @@ from PIL import Image
 from torchvision import models, transforms
 import torch
 import pandas
+import pickle
 from streamlit_option_menu import option_menu
+
+with open('classlabels.pkl', 'rb') as f:
+    class_names = pickle.load(f)
 
 
 def predict(image_path):
-    model = torch.load('birdmodel', map_location=torch.device('cpu'))
+    model = torch.load('Googlenet_50_epochs',
+                       map_location=torch.device('cpu'))
 
     # https://pytorch.org/docs/stable/torchvision/models.html
     transform = transforms.Compose([
@@ -22,16 +27,15 @@ def predict(image_path):
     batch_t = torch.unsqueeze(transform(img), 0)
 
     model.eval()
-    out = model(batch_t)
-    prob = torch.nn.functional.softmax(out, dim=1)[0] * 100
-    _, indices = torch.sort(out, descending=True)
-
-    # reading the CSV file
+    outputs = model(batch_t)
+    _, predicted = torch.max(outputs, 1)
+    title = [class_names[x] for x in predicted]
+    prob = torch.nn.functional.softmax(outputs, dim=1)[0] * 100
     classes = pandas.read_csv('bird_dataset.csv', header=None)
-
-    prob = torch.nn.functional.softmax(out, dim=1)[0] * 100
-    _, indices = torch.sort(out, descending=True)
-    return [(classes[0][int(idx)], prob[idx].item()) for idx in indices[0][:5]]
+    # print("prob: ", float(max(prob)))
+    # print("title: ", title[0])
+    # print("name: ", classes[0][int(title[0])-1].split('.')[0])
+    return (float(max(prob)), classes[0][int(title[0])-1].split('.')[0])
 
 
 st.set_option('deprecation.showfileUploaderEncoding', False)
@@ -64,13 +68,13 @@ if selected == "Project":
 
         with col2:
             st.write("Your results are served here...")
-            labels = predict(file_up)
-            # st.write(labels)
-            # print out the top 5 prediction labels with scores
-            for i in labels:
-                st.write("Prediction (name): ", i[0].split(
-                    '.')[0], ",   \nScore: ", i[1])
-
+            score, bird_name = predict(file_up)
+            # st.write(results)
+            if score > 60:
+                st.write("Prediction (name): ",
+                         score, ",   \nScore: ", bird_name)
+            else:
+                st.write("No such bird in database!")
 
 elif selected == "Home":
     st.title("West bengal bird species classification project")
