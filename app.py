@@ -3,6 +3,7 @@ from PIL import Image
 from torchvision import models, transforms
 import torch
 import pandas
+from streamlit_option_menu import option_menu
 
 
 def predict(image_path):
@@ -35,18 +36,31 @@ def predict(image_path):
 
 st.set_option('deprecation.showfileUploaderEncoding', False)
 
-st.title("Karam and Ishan's Simple Image Classification App")
-st.write("")
+selected = option_menu(
+    menu_title=None,
+    options=["Home", "Project", "Contact"],
+    orientation="horizontal",
+    default_index=0,
+    menu_icon="cast"
+)
 
-file_up = st.file_uploader("Upload an image", type="jpg")
-
-if file_up is not None:
-    image = Image.open(file_up)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
+if selected == "Project":
+    # st.title("Karam and Ishan's Simple Image Classification App")
     st.write("")
-    st.write("Your results are served here...")
-    labels = predict(file_up)
-    # st.write(labels)
-    # print out the top 5 prediction labels with scores
-    for i in labels:
-        st.write("Prediction (name)", i[0].split('.')[0], ",   Score: ", i[1])
+
+    file_up = st.file_uploader("Upload an image", type="jpg")
+
+    if file_up is not None:
+        image = Image.open(file_up)
+        st.image(image, caption='Uploaded Image.', use_column_width=True)
+        st.write("")
+        st.write("Your results are served here...")
+        labels = predict(file_up)
+        # st.write(labels)
+        # print out the top 5 prediction labels with scores
+        for i in labels:
+            st.write("Prediction (name)", i[0].split(
+                '.')[0], ",   Score: ", i[1])
+
+elif selected == "Home":
+    st.title("West bengal bird species classification project")
